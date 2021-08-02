@@ -93,7 +93,7 @@ def Display_Multiple_Images(images_array, scale=0.5):
     return v_stack
 
 ######################################################################################################################################
-def color_filtering(frame, boundaries, max_contrast_output=False):
+def color_filtering(frame, boundaries, binarization=False):
 
     # loop over the boundaries
     for (lower, upper) in boundaries:
@@ -105,8 +105,8 @@ def color_filtering(frame, boundaries, max_contrast_output=False):
         mask = cv2.inRange(frame, lower, upper) # mask wit in range of lower to upper
         output_filter = cv2.bitwise_and(frame, frame, mask = mask)
         
-        # Max contrast-> binaryzation:
-        if max_contrast_output: 
+        # binarization:
+        if binarization: 
             output_filter[np.where((output_filter == [0,0,0]).all(axis = 2))] = [255,255,255]
             output_filter[np.where((output_filter != [255,255,255]).all(axis = 2))] = [0,0,0]
             output_filter = cv2.cvtColor(output_filter,cv2.COLOR_BGR2GRAY)
