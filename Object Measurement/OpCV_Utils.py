@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import time
 
+##############################################################################################################
 def Display_Multiple_Images(images_array, scale=0.5):
         
     ##############################################################################################################
@@ -54,6 +55,44 @@ def Display_Multiple_Images(images_array, scale=0.5):
             v_stack = np.vstack([v_stack, h_stack])  
                                  
     return v_stack
+
+##############################################################################################################
+def color_filtering(frame, boundaries, max_contrast_output=False):
+
+    # loop over the boundaries
+    for (lower, upper) in boundaries:
+
+        # create NumPy arrays from the boundaries
+        lower = np.array(lower, dtype = "uint8") # Lower color limit
+        upper = np.array(upper, dtype = "uint8") # Upper color limit
+
+        mask = cv2.inRange(frame, lower, upper) # mask wit in range of lower to upper
+        output_filter = cv2.bitwise_and(frame, frame, mask = mask)
+        
+        if max_contrast_output:
+            output_filter[np.where((output_filter == [0,0,0]).all(axis = 2))] = [255,255,255]
+            output_filter[np.where((output_filter != [255,255,255]).all(axis = 2))] = [0,0,0]
+            output_filter = cv2.cvtColor(output_filter,cv2.COLOR_BGR2GRAY)
+            output_filter = cv2.bitwise_not(output_filter)
+        
+    return output_filter
+
+##############################################################################################################
+def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thresh = (100,100), dil_level = 0, ero_level = 0):
+    
+    # Canny Processing:
+    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    blur_img = cv2.GaussianBlur(gray_img, blur_kernel_size, 1)
+    canny_img = cv2.Canny(blur_img, canny_thresh[0], canny_thresh[1])
+    
+    kernel = np.ones(kernel_size)
+    
+    img_dilation = cv2.dilate(canny_img, kernel, iterations = dil_level)
+    img_thresh = cv2.erode(img_dilation, kernel, iterations = ero_level)
+    
+    return img_thresh
+
+##############################################################################################################
 
 if __name__ == '__main__':
     print('Main')
