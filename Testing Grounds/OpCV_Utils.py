@@ -5,11 +5,11 @@ import time
 ######################################################################################################################################
 def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
     # Function for outputing plt subplots from images (RGB).
-    # Each row of images must have the same size as the others.
+    # Each row of images must have the same number of elements as the others.
     # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
     
     if (len(images_array) > 1) & (len(images_array[0]) > 1):
-        fig, axis = plt.subplots(len(images_array), len(images_array[0]), figsize = size)
+        fig, axis = plt.subplots(len(images_array), len(images_array[0]), figsize = fig_size)
 
         for i in range(len(images_array)):
             for j in range(len(images_array[0])):
@@ -19,7 +19,7 @@ def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
                 axis[i][j].axis('off')
 
     if (len(images_array) == 1):
-        fig, axis = plt.subplots(1, len(images_array[0]), figsize = size)
+        fig, axis = plt.subplots(1, len(images_array[0]), figsize = fig_size)
         for j in range(len(images_array[0])):
             axis[j].imshow(images_array[0][j], 'gray')
             axis[j].set_anchor('NW')
@@ -27,7 +27,7 @@ def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
             axis[j].axis('off')
 
     if (len(images_array[0]) == 1):
-        fig, axis = plt.subplots(len(images_array), 1, figsize = size)
+        fig, axis = plt.subplots(len(images_array), 1, figsize = fig_size)
         for j in range(len(images_array)):
             axis[j].imshow(images_array[j][0], 'gray')
             axis[j].set_anchor('NW')
