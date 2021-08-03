@@ -1,11 +1,46 @@
 import numpy as np
 import cv2
-import time
 
-##############################################################################################################
-def Display_Multiple_Images(images_array, scale=0.5):
+######################################################################################################################################
+def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
+    # Function for outputing plt subplots from images (RGB).
+    # Each row of images must have the same number of elements as the others.
+    # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
+    
+    if (len(images_array) > 1) & (len(images_array[0]) > 1):
+        fig, axis = plt.subplots(len(images_array), len(images_array[0]), figsize = fig_size)
+
+        for i in range(len(images_array)):
+            for j in range(len(images_array[0])):
+                axis[i][j].imshow(images_array[i][j], 'gray')
+                axis[i][j].set_anchor('NW')
+                axis[i][j].set_title('{}'.format(titles_array[i][j]), fontdict = {'fontsize': 15, 'fontweight': 'medium'}, pad = 10)
+                axis[i][j].axis('off')
+
+    if (len(images_array) == 1):
+        fig, axis = plt.subplots(1, len(images_array[0]), figsize = fig_size)
+        for j in range(len(images_array[0])):
+            axis[j].imshow(images_array[0][j], 'gray')
+            axis[j].set_anchor('NW')
+            axis[j].set_title('{}'.format(titles_array[0][j]), fontdict = {'fontsize': 15, 'fontweight': 'medium'}, pad = 10)
+            axis[j].axis('off')
+
+    if (len(images_array[0]) == 1):
+        fig, axis = plt.subplots(len(images_array), 1, figsize = fig_size)
+        for j in range(len(images_array)):
+            axis[j].imshow(images_array[j][0], 'gray')
+            axis[j].set_anchor('NW')
+            axis[j].set_title('{}'.format(titles_array[j][0]), fontdict = {'fontsize': 15, 'fontweight': 'medium'}, pad = 10)
+            axis[j].axis('off')
+            
+    pass
+
+######################################################################################################################################
+def display_multiple_images(images_array, scale=0.5):
+    # Function for rescaling and stacking cv2 BGR images together.
+    # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
         
-    ##############################################################################################################
+    ##################################################################################################################
     # Resize images based on the shape of the first image:
     for i in range(len(images_array)):
         for j in range(len(images_array[i])):
@@ -23,7 +58,7 @@ def Display_Multiple_Images(images_array, scale=0.5):
                 if (images_array[i][j].shape[2] == 1):
                     images_array[i][j] = cv2.cvtColor(images_array[i][j], cv2.COLOR_GRAY2BGR)
     
-    ##############################################################################################################
+    ##################################################################################################################
     # Let's equalize rows number of images:
     lens = [1]*len(images_array)
     
@@ -56,8 +91,8 @@ def Display_Multiple_Images(images_array, scale=0.5):
                                  
     return v_stack
 
-##############################################################################################################
-def color_filtering(frame, boundaries, max_contrast_output=False):
+######################################################################################################################################
+def color_filtering(frame, boundaries, binarization=False):
 
     # loop over the boundaries
     for (lower, upper) in boundaries:
@@ -69,7 +104,8 @@ def color_filtering(frame, boundaries, max_contrast_output=False):
         mask = cv2.inRange(frame, lower, upper) # mask wit in range of lower to upper
         output_filter = cv2.bitwise_and(frame, frame, mask = mask)
         
-        if max_contrast_output:
+        # binarization:
+        if binarization: 
             output_filter[np.where((output_filter == [0,0,0]).all(axis = 2))] = [255,255,255]
             output_filter[np.where((output_filter != [255,255,255]).all(axis = 2))] = [0,0,0]
             output_filter = cv2.cvtColor(output_filter,cv2.COLOR_BGR2GRAY)
@@ -77,8 +113,8 @@ def color_filtering(frame, boundaries, max_contrast_output=False):
         
     return output_filter
 
-##############################################################################################################
-def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thresh = (100,100), dil_level = 0, ero_level = 0):
+######################################################################################################################################
+def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thresh = (100,100), order = 1, dil_level = 0, ero_level = 0):
     
     # Canny Processing:
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -87,12 +123,45 @@ def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thres
     
     kernel = np.ones(kernel_size)
     
-    img_dilation = cv2.dilate(canny_img, kernel, iterations = dil_level)
-    img_thresh = cv2.erode(img_dilation, kernel, iterations = ero_level)
+    if (order == 1):
+        img_dilation = cv2.dilate(canny_img, kernel, iterations = dil_level)
+        img_thresh = cv2.erode(img_dilation, kernel, iterations = ero_level)
+        
+    if (order == -1):
+        img_erosion = cv2.erode(canny_img, kernel, iterations = ero_level)
+        img_thresh = cv2.dilate(img_erosion, kernel, iterations = dil_level)
     
     return img_thresh
 
-##############################################################################################################
+######################################################################################################################################
+def img_warping_ref_obj(img, ref_points, ref_obj_W, ref_obj_H, pad=0):
+    # ref_points format = np.array([[[p1x, p1y]], [[p2x, p2y]], [[p3x, p3y]], [[p4x, p4y]]])
+    
+    ###################################################
+    # Reordering points if needed:
+    reordered_points = np.zeros_like(ref_points)
+    points = ref_points.reshape((4,2))
+    
+    add = points.sum(1)
+    reordered_points[0] = points[np.argmin(add)]
+    reordered_points[3] = points[np.argmax(add)]
+    
+    diff = np.diff(points, axis = 1)
+    reordered_points[1] = points[np.argmin(diff)]
+    reordered_points[2] = points[np.argmax(diff)]
+    
+    points = reordered_points
+    ###################################################
+    
+    pts1 = np.float32(points)
+    pts2 = np.float32([[0,0],[ref_obj_W,0],[0,ref_obj_H],[ref_obj_W,ref_obj_H]])
+    matrix = cv2.getPerspectiveTransform(pts1,pts2)
+    img_warped = cv2.warpPerspective(img, matrix, (ref_obj_W, ref_obj_H))
+    img_warped = img_warped[pad:img_warped.shape[0]-pad, pad:img_warped.shape[1]-pad]
+    
+    return img_warped
+
+######################################################################################################################################
 
 if __name__ == '__main__':
     print('Main')

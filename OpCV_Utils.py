@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-import time
 
 ######################################################################################################################################
 def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
@@ -37,7 +36,7 @@ def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
     pass
 
 ######################################################################################################################################
-def Display_Multiple_Images(images_array, scale=0.5):
+def display_multiple_images(images_array, scale=0.5):
     # Function for rescaling and stacking cv2 BGR images together.
     # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
         
@@ -133,6 +132,34 @@ def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thres
         img_thresh = cv2.dilate(img_erosion, kernel, iterations = dil_level)
     
     return img_thresh
+
+######################################################################################################################################
+def img_warping_ref_obj(img, ref_points, ref_obj_W, ref_obj_H, pad=0):
+    # ref_points format = np.array([[[p1x, p1y]], [[p2x, p2y]], [[p3x, p3y]], [[p4x, p4y]]])
+    
+    ###################################################
+    # Reordering points if needed:
+    reordered_points = np.zeros_like(ref_points)
+    points = ref_points.reshape((4,2))
+    
+    add = points.sum(1)
+    reordered_points[0] = points[np.argmin(add)]
+    reordered_points[3] = points[np.argmax(add)]
+    
+    diff = np.diff(points, axis = 1)
+    reordered_points[1] = points[np.argmin(diff)]
+    reordered_points[2] = points[np.argmax(diff)]
+    
+    points = reordered_points
+    ###################################################
+    
+    pts1 = np.float32(points)
+    pts2 = np.float32([[0,0],[ref_obj_W,0],[0,ref_obj_H],[ref_obj_W,ref_obj_H]])
+    matrix = cv2.getPerspectiveTransform(pts1,pts2)
+    img_warped = cv2.warpPerspective(img, matrix, (ref_obj_W, ref_obj_H))
+    img_warped = img_warped[pad:img_warped.shape[0]-pad, pad:img_warped.shape[1]-pad]
+    
+    return img_warped
 
 ######################################################################################################################################
 
