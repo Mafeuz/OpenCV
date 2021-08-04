@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import cv2
 
 ######################################################################################################################################
@@ -160,6 +161,50 @@ def img_warping_ref_obj(img, ref_points, ref_obj_W, ref_obj_H, pad=0):
     img_warped = img_warped[pad:img_warped.shape[0]-pad, pad:img_warped.shape[1]-pad]
     
     return img_warped
+
+######################################################################################################################################
+def img_homography(img, points1, points2, pad=0):
+    # Points must have to be defined in the same resolution for the source and destination images.
+    # points format = np.array([[[p1x, p1y]], [[p2x, p2y]], [[p3x, p3y]], [[p4x, p4y]]])
+    
+    ###################################################
+    reordered_points1 = np.zeros_like(points1)
+    points1 = points1.reshape((4,2))
+    
+    add = points1.sum(1)
+    reordered_points1[0] = points1[np.argmin(add)]
+    reordered_points1[3] = points1[np.argmax(add)]
+    
+    diff = np.diff(points1, axis = 1)
+    reordered_points1[1] = points1[np.argmin(diff)]
+    reordered_points1[2] = points1[np.argmax(diff)]
+    
+    points1 = reordered_points1
+    ###################################################
+    reordered_points2 = np.zeros_like(points2)
+    points2 = points2.reshape((4,2))
+    
+    add = points2.sum(1)
+    reordered_points2[0] = points2[np.argmin(add)]
+    reordered_points2[3] = points2[np.argmax(add)]
+    
+    diff = np.diff(points2, axis = 1)
+    reordered_points2[1] = points2[np.argmin(diff)]
+    reordered_points2[2] = points2[np.argmax(diff)]
+    
+    points2 = reordered_points2
+    ###################################################
+    
+    pts1 = np.float32(points1)
+    pts2 = np.float32(points2)
+    matrix = cv2.getPerspectiveTransform(pts1,pts2)
+ 
+    W = img.shape[1]
+    H = img.shape[0]
+    img_warp = cv2.warpPerspective(img, matrix, (W,H))
+    img_warp = img_warp[pad:img_warp.shape[0]-pad, pad:img_warp.shape[1]-pad]
+    
+    return img_warp
 
 ######################################################################################################################################
 
