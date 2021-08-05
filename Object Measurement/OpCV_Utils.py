@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 import cv2
 
 ######################################################################################################################################
+def show_single_image_plt(img, title, size):
+    fig, axis = plt.subplots(figsize = size)
+    axis.imshow(img)
+    axis.set_title(title, fontdict = {'fontsize': 22, 'fontweight': 'medium'})
+    plt.show()
+
+######################################################################################################################################
 def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
     # Function for outputing plt subplots from images (RGB).
     # Each row of images must have the same number of elements as the others.
