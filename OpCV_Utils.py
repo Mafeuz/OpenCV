@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 ######################################################################################################################################
-def show_single_image_plt(img, title, size, gray=False):
+def show_single_image_plt(img, title, size, show_axis=False, gray=False):
     fig, axis = plt.subplots(figsize = size)
     
     if gray:
@@ -12,7 +12,10 @@ def show_single_image_plt(img, title, size, gray=False):
         axis.imshow(img)
         
     axis.set_title(title, fontdict = {'fontsize': 22, 'fontweight': 'medium'})
-    axis.axis('off')
+    
+    if not show_axis:
+        axis.axis('off')
+        
     plt.show()
     
     pass
@@ -52,7 +55,7 @@ def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
     pass
 
 ######################################################################################################################################
-def display_multiple_images(images_array, scale=0.5):
+def stack_multiple_images(images_array, scale=0.5):
     # Function for rescaling and stacking cv2 BGR images together.
     # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
         

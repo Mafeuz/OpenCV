@@ -3,11 +3,22 @@ import matplotlib.pyplot as plt
 import cv2
 
 ######################################################################################################################################
-def show_single_image_plt(img, title, size):
+def show_single_image_plt(img, title, size, show_axis=False, gray=False):
     fig, axis = plt.subplots(figsize = size)
-    axis.imshow(img)
+    
+    if gray:
+        axis.imshow(img,'gray')
+    else:
+        axis.imshow(img)
+        
     axis.set_title(title, fontdict = {'fontsize': 22, 'fontweight': 'medium'})
+    
+    if not show_axis:
+        axis.axis('off')
+        
     plt.show()
+    
+    pass
 
 ######################################################################################################################################
 def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
@@ -44,7 +55,7 @@ def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
     pass
 
 ######################################################################################################################################
-def display_multiple_images(images_array, scale=0.5):
+def stack_multiple_images(images_array, scale=0.5):
     # Function for rescaling and stacking cv2 BGR images together.
     # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
         
@@ -100,7 +111,7 @@ def display_multiple_images(images_array, scale=0.5):
     return v_stack
 
 ######################################################################################################################################
-def color_filtering(frame, boundaries, binarization=False):
+def color_filtering(img, boundaries, binarization=False):
 
     # loop over the boundaries
     for (lower, upper) in boundaries:
@@ -109,16 +120,13 @@ def color_filtering(frame, boundaries, binarization=False):
         lower = np.array(lower, dtype = "uint8") # Lower color limit
         upper = np.array(upper, dtype = "uint8") # Upper color limit
 
-        mask = cv2.inRange(frame, lower, upper) # mask wit in range of lower to upper
-        output_filter = cv2.bitwise_and(frame, frame, mask = mask)
+        mask = cv2.inRange(img, lower, upper) # mask wit in range of lower to upper
+        output_filter = cv2.bitwise_and(img, img, mask = mask)
         
         # binarization:
         if binarization: 
-            output_filter[np.where((output_filter == [0,0,0]).all(axis = 2))] = [255,255,255]
-            output_filter[np.where((output_filter != [255,255,255]).all(axis = 2))] = [0,0,0]
-            output_filter = cv2.cvtColor(output_filter,cv2.COLOR_BGR2GRAY)
-            output_filter = cv2.bitwise_not(output_filter)
-        
+            pass
+         
     return output_filter
 
 ######################################################################################################################################
