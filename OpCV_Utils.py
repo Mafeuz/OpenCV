@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import cv2
 
 ######################################################################################################################################
-def show_single_image_plt(img, title, size, show_axis=False, gray=False):
-    fig, axis = plt.subplots(figsize = size)
+def show_single_image_plt(img, title, fig_size=(15,15), show_axis=False, gray=False):
+    fig, axis = plt.subplots(figsize = fig_size)
     
     if gray:
         axis.imshow(img,'gray')
@@ -55,7 +55,7 @@ def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
     pass
 
 ######################################################################################################################################
-def stack_multiple_images(images_array, scale=0.5):
+def stack_multiple_images(images_array, sep_lines=False, scale=0.5):
     # Function for rescaling and stacking cv2 BGR images together.
     # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
         
@@ -106,7 +106,11 @@ def stack_multiple_images(images_array, scale=0.5):
         if (i == 0):                          
             v_stack = h_stack
         if (i > 0):                          
-            v_stack = np.vstack([v_stack, h_stack])  
+            v_stack = np.vstack([v_stack, h_stack])
+            
+    if sep_lines:
+        cv2.line(v_stack, (v_stack.shape[1]//2, 0), (v_stack.shape[1]//2, v_stack.shape[0]), (255,0,0), 6)
+        cv2.line(v_stack, (0, v_stack.shape[0]//2), (v_stack.shape[0], v_stack.shape[0]//2), (255,0,0), 6)
                                  
     return v_stack
 
