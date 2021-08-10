@@ -7,14 +7,11 @@ def show_single_image_plt(img, title, fig_size=(15,15), show_axis=False):
     fig, axis = plt.subplots(figsize = fig_size)
   
     axis.imshow(img)
-        
     axis.set_title(title, fontdict = {'fontsize': 22, 'fontweight': 'medium'})
     
     if not show_axis:
         axis.axis('off')
         
-    plt.show()
-    
     pass
 
 ######################################################################################################################################
@@ -148,7 +145,6 @@ def color_filtering(img, boundaries, binarization=False):
 
 ######################################################################################################################################
 def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thresh = (100,100), order = 1, dil_level = 0, ero_level = 0):
-    
     # Canny Processing:
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blur_img = cv2.GaussianBlur(gray_img, blur_kernel_size, 1)
@@ -165,6 +161,23 @@ def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thres
         img_thresh = cv2.dilate(img_erosion, kernel, iterations = dil_level)
     
     return img_thresh
+
+######################################################################################################################################
+def reorder_4points(points):
+    # redorder 4 points ref to their coordinates
+    # points format = np.array([[[p1x, p1y]], [[p2x, p2y]], [[p3x, p3y]], [[p4x, p4y]]])
+    reordered_points = np.zeros_like(points)
+    points = points.reshape((4,2))
+    
+    add = points.sum(1)
+    reordered_points[0] = points[np.argmin(add)]
+    reordered_points[3] = points[np.argmax(add)]
+    
+    diff = np.diff(points, axis = 1)
+    reordered_points[1] = points[np.argmin(diff)]
+    reordered_points[2] = points[np.argmax(diff)]
+    
+    return reordered_points
 
 ######################################################################################################################################
 def img_warping_ref_obj(img, ref_points, ref_obj_W, ref_obj_H, pad=0):
