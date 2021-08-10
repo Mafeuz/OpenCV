@@ -3,13 +3,10 @@ import matplotlib.pyplot as plt
 import cv2
 
 ######################################################################################################################################
-def show_single_image_plt(img, title, fig_size=(15,15), show_axis=False, gray=False):
+def show_single_image_plt(img, title, fig_size=(15,15), show_axis=False):
     fig, axis = plt.subplots(figsize = fig_size)
-    
-    if gray:
-        axis.imshow(img,'gray')
-    else:
-        axis.imshow(img)
+  
+    axis.imshow(img)
         
     axis.set_title(title, fontdict = {'fontsize': 22, 'fontweight': 'medium'})
     
@@ -21,7 +18,7 @@ def show_single_image_plt(img, title, fig_size=(15,15), show_axis=False, gray=Fa
     pass
 
 ######################################################################################################################################
-def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
+def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15), show_axis=False):
     # Function for outputing plt subplots from images (RGB).
     # Each row of images must have the same number of elements as the others.
     # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
@@ -31,31 +28,34 @@ def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15)):
 
         for i in range(len(images_array)):
             for j in range(len(images_array[0])):
-                axis[i][j].imshow(images_array[i][j], 'gray')
+                axis[i][j].imshow(images_array[i][j])
                 axis[i][j].set_anchor('NW')
                 axis[i][j].set_title('{}'.format(titles_array[i][j]), fontdict = {'fontsize': 15, 'fontweight': 'medium'}, pad = 10)
-                axis[i][j].axis('off')
+                if not show_axis:
+                    axis[i][j].axis('off')
 
     if (len(images_array) == 1):
         fig, axis = plt.subplots(1, len(images_array[0]), figsize = fig_size)
         for j in range(len(images_array[0])):
-            axis[j].imshow(images_array[0][j], 'gray')
+            axis[j].imshow(images_array[0][j])
             axis[j].set_anchor('NW')
             axis[j].set_title('{}'.format(titles_array[0][j]), fontdict = {'fontsize': 15, 'fontweight': 'medium'}, pad = 10)
-            axis[j].axis('off')
+            if not show_axis:
+                axis[j].axis('off')
 
     if (len(images_array[0]) == 1):
         fig, axis = plt.subplots(len(images_array), 1, figsize = fig_size)
         for j in range(len(images_array)):
-            axis[j].imshow(images_array[j][0], 'gray')
+            axis[j].imshow(images_array[j][0])
             axis[j].set_anchor('NW')
             axis[j].set_title('{}'.format(titles_array[j][0]), fontdict = {'fontsize': 15, 'fontweight': 'medium'}, pad = 10)
-            axis[j].axis('off')
+            if not show_axis:
+                axis[j].axis('off')
             
     pass
 
 ######################################################################################################################################
-def stack_multiple_images(images_array, scale=0.5):
+def stack_multiple_images(images_array, sep_lines=False, scale=0.5):
     # Function for rescaling and stacking cv2 BGR images together.
     # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
         
@@ -89,7 +89,7 @@ def stack_multiple_images(images_array, scale=0.5):
     
     for i in range(len(images_array)):
         if (len(images_array[i]) < max_len):
-            blank_image = np.zeros((images_array[0][0].shape[0], images_array[0][0].shape[1] , 3),dtype=np.uint8)
+            blank_image = np.ones((images_array[0][0].shape[0], images_array[0][0].shape[1] , 3),dtype=np.uint8)*150
         
             for j in range(max_len - len(images_array[i])):
                 images_array[i].append(blank_image)
@@ -107,7 +107,24 @@ def stack_multiple_images(images_array, scale=0.5):
             v_stack = h_stack
         if (i > 0):                          
             v_stack = np.vstack([v_stack, h_stack])
-                                 
+                      
+    ##############################################################################################################
+    # Paint Separation Lines:
+    if sep_lines:
+        
+        # Horizontal Lines:
+        if (len(images_array) > 0):
+            for i in range(len(images_array)-1):
+                cv2.line(v_stack, (0, (i+1)*(v_stack.shape[0]//len(images_array))), 
+                        (v_stack.shape[1], (i+1)*(v_stack.shape[0]//len(images_array))), (255, 0, 0), 2)
+                
+        # Vertical Lines:
+        for i in range(max_len-1):
+            cv2.line(v_stack, ((i+1)*(v_stack.shape[1]//max_len), 0), 
+                     ((i+1)*(v_stack.shape[1]//max_len), v_stack.shape[0]), (255, 0, 0), 2)
+            
+    ##############################################################################################################
+                                  
     return v_stack
 
 ######################################################################################################################################
