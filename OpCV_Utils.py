@@ -252,6 +252,89 @@ def img_homography(img, points1, points2, pad=0):
     return img_warp
 
 ######################################################################################################################################
+def select_4_points_mouse_callback(event, x, y, flags, param):
+    
+    # Global Aux Variables Should Start As:
+    # clicked = False
+    # move_points = [False, False, False, False]
+    
+    # Starting Points Example:
+    # p1 = (image.shape[1]//3, image.shape[0]//4)
+    # p2 = (2*image.shape[1]//3, image.shape[0]//4)
+    # p3 = (image.shape[1]//3, 3*image.shape[0]//4)
+    # p4 = (2*image.shape[1]//3, 3*image.shape[0]//4)
+    
+    # How to set callback to a window:
+    # cv2.namedWindow('Image')
+    # cv2.setMouseCallback('Image', select_4_points_mouse_callback)
+
+    global p1, p2, p3, p4, clicked, move_points
+    
+    p_radius = 10
+       
+    if event == cv2.EVENT_LBUTTONDOWN:
+        
+        if (((p1[0] - p_radius) < x < (p1[0] + p_radius)) & ((p1[1] - p_radius) < y < (p1[1] + p_radius))):
+            p1 = (x, y)
+            clicked = True
+            move_points = [True, False, False, False]
+            
+        elif (((p2[0] - p_radius) < x < (p2[0] + p_radius)) & ((p2[1] - p_radius) < y < (p2[1] + p_radius))):
+            p2 = (x, y)
+            clicked = True
+            move_points = [False, True, False, False]
+            
+        elif (((p3[0] - p_radius) < x < (p3[0] + p_radius)) & ((p3[1] - p_radius) < y < (p3[1] + p_radius))):
+            p3 = (x, y)
+            clicked = True
+            move_points_dest = [False, False, True, False]
+            
+        elif (((p4[0] - p_radius) < x < (p4[0] + p_radius)) & ((p4[1] - p_radius) < y < (p4[1] + p_radius))):
+            p4 = (x, y)
+            clicked = True
+            move_points = [False, False, False, True]
+    
+    if clicked == True:
+        if event == cv2.EVENT_MOUSEMOVE:
+            if (move_points[0] == True):
+                p1 = (x, y)
+            if (move_points[1] == True):
+                p2 = (x, y)
+            if (move_points[2] == True):
+                p3 = (x, y)
+            if (move_points[3] == True):
+                p4 = (x, y)
+            
+        if event == cv2.EVENT_LBUTTONUP:
+            clicked = False
+            move_points = [False, False, False, False]
+
+    pass
+
+######################################################################################################################################
+def draw__4points_polygon(image, p1, p2, p3, p4):
+    
+    p_outer_radius = 10
+    p_inner_radius = 2
+    
+    cv2.circle(image, p1, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
+    cv2.circle(image, p2, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
+    cv2.circle(image, p3, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
+    cv2.circle(image, p4, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
+
+    cv2.line(image, p1, p2, (255, 0, 0), 3)
+    cv2.line(image, p2, p4, (255, 0, 0), 3)
+    cv2.line(image, p1, p3, (255, 0, 0), 3)
+    cv2.line(image, p3, p4, (255, 0, 0), 3)
+    
+    cv2.circle(image, p1, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
+    cv2.circle(image, p2, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
+    cv2.circle(image, p3, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
+    cv2.circle(image, p4, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
+
+    pass
+
+######################################################################################################################################
 
 if __name__ == '__main__':
     print('Main')
