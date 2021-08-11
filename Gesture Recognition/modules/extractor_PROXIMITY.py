@@ -1,4 +1,4 @@
-import extrator_POSICAO as posicao
+import extractor_POSITION as posicao
 
 
 # esta função faz a verificação da proximidade entre dedos
