@@ -163,6 +163,46 @@ def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thres
     return img_thresh
 
 ######################################################################################################################################
+def find_contours(img, c_thresh = (100,100), dil = 1, ero = 0):
+    
+    img_canny = custom_canny(img.copy(), blur_kernel_size = (5,5), kernel_size = (3,3), 
+                             canny_thresh = c_thresh, order = 1, dil_level = dil, ero_level = ero)
+
+    contours, hiearchy = cv2.findContours(img_canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    conts = []
+
+    for i, c in enumerate(contours):
+            area = cv2.contourArea(c)
+            M = cv2.moments(c)
+
+            # calculate x,y coordinate of centroid
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+
+                # Get contour extreme points:
+                extLeft = c[c[:, :, 0].argmin()][0]
+                extRight = c[c[:, :, 0].argmax()][0]
+                extTop = c[c[:, :, 1].argmin()][0]
+                extBot = c[c[:, :, 1].argmax()][0]
+
+                bbox_start_point = (extLeft[0], extTop[1])
+                bbox_end_point = (extRight[0], extBot[1])
+                
+            else:
+                cX, cY = None, None
+                bbox_start_point = None
+                bbox_end_point = None
+
+            conts.append([c, area, (cX, cY), bbox_start_point, bbox_end_point])
+
+    # Sort contours by area size (biggest to smaller)
+    conts = sorted(conts, key = lambda x:x[1], reverse = True)
+    
+    return conts, img_canny
+
+######################################################################################################################################
 def reorder_4points(points):
     # redorder 4 points ref to their coordinates
     # points format = np.array([[[p1x, p1y]], [[p2x, p2y]], [[p3x, p3y]], [[p4x, p4y]]])
