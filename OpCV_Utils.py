@@ -163,6 +163,61 @@ def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thres
     return img_thresh
 
 ######################################################################################################################################
+def canny_trackbars(img, img_resize=(600,500), krnl_size = (3,3), stack_scale=(0.5)):
+    
+    print('Press K to break.\n')
+    
+    ############################################################################
+    #trackbar callback function does nothing but required for trackbar
+    def nothing(x):
+        pass
+
+    # Canny Controls Trackbar:
+    cv2.namedWindow('Canny Controls')
+    cv2.createTrackbar('Dilation','Canny Controls', 0,10, nothing)
+    cv2.createTrackbar('Erosion','Canny Controls', 0,10, nothing)
+    cv2.createTrackbar('Canny Thresh X','Canny Controls', 100,255, nothing)
+    cv2.createTrackbar('Canny Thresh Y','Canny Controls', 100,255, nothing)
+    ############################################################################
+
+    img = cv2.resize(img, img_resize)
+        
+    while True:
+
+        # Keyboard Controls:
+
+        key = cv2.waitKey(1) or 0xff   
+
+        if key == ord('k'):
+            break
+
+        ############################################################################
+
+        dilation = int(cv2.getTrackbarPos('Dilation','Canny Controls'))
+        erosion = int(cv2.getTrackbarPos('Erosion','Canny Controls'))
+        cny_thresh = (int(cv2.getTrackbarPos('Canny Thresh X','Canny Controls')), 
+                      int(cv2.getTrackbarPos('Canny Thresh Y','Canny Controls')))
+
+        img_canny = custom_canny(img.copy(), kernel_size = krnl_size, canny_thresh = cny_thresh, 
+                                   dil_level = dilation, ero_level = erosion)
+
+        img_stack = stack_multiple_images([[img, img_canny]], scale = stack_scale)
+
+        ############################################################################
+
+        cv2.imshow('Canny Controls', img_stack)
+
+    cv2.destroyAllWindows()
+
+    print('=============================================')
+    print('Final Dilation Iterations:', dilation)
+    print('Final Erosion Iterations:', erosion)
+    print('Final Canny Thresh:', cny_thresh)
+    print('=============================================')
+    
+    pass
+
+######################################################################################################################################
 def find_contours(img, c_thresh = (100,100), dil = 1, ero = 0):
     
     img_canny = custom_canny(img.copy(), blur_kernel_size = (5,5), kernel_size = (3,3), 
