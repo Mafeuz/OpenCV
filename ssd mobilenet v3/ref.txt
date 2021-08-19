@@ -1,3 +1,3 @@
-tensorflow ref:https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1_detection_zoo.md
+tensorflow ref: https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1_detection_zoo.md
 
 config ref: https://gist.github.com/dkurt/54a8e8b51beb3bd3f770b79e56927bd7
