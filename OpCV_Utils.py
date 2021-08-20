@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 ######################################################################################################################################
-def show_single_image_plt(img, title, fig_size=(15,15), show_axis=False):
+def show_single_img_plt(img, title, fig_size=(15,15), show_axis=False):
     fig, axis = plt.subplots(figsize = fig_size)
   
     axis.imshow(img)
@@ -15,7 +15,7 @@ def show_single_image_plt(img, title, fig_size=(15,15), show_axis=False):
     pass
 
 ######################################################################################################################################
-def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15), show_axis=False):
+def show_multiple_imgs_plt(images_array, titles_array, fig_size = (15,15), show_axis=False):
     # Function for outputing plt subplots from images (RGB).
     # Each row of images must have the same number of elements as the others.
     # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
@@ -52,7 +52,7 @@ def show_multiple_images_plt(images_array, titles_array, fig_size = (15,15), sho
     pass
 
 ######################################################################################################################################
-def stack_multiple_images(images_array, sep_lines=False, scale=0.5):
+def stackImgs(images_array, sep_lines=False, scale=0.5):
     # Function for rescaling and stacking cv2 BGR images together.
     # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
         
@@ -163,7 +163,7 @@ def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thres
     return img_thresh
 
 ######################################################################################################################################
-def canny_trackbars(img, img_resize=(600,500), krnl_size = (3,3), stack_scale=(0.5)):
+def canny_trackbars(img, img_resize=(600,500), krnl_size = (3,3), stackImgs=False, stack_scale=(0.5)):
     
     print('Press K to break.\n')
     
@@ -201,11 +201,12 @@ def canny_trackbars(img, img_resize=(600,500), krnl_size = (3,3), stack_scale=(0
         img_canny = custom_canny(img.copy(), kernel_size = krnl_size, canny_thresh = cny_thresh, 
                                    dil_level = dilation, ero_level = erosion)
 
-        img_stack = stack_multiple_images([[img, img_canny]], scale = stack_scale)
+        if stackImgs:
+            img_canny = stackImgs([[img, img_canny]], scale = stack_scale)
 
         ############################################################################
 
-        cv2.imshow('Canny Controls', img_stack)
+        cv2.imshow('Canny Controls', img_canny)
 
     cv2.destroyAllWindows()
 
@@ -215,7 +216,7 @@ def canny_trackbars(img, img_resize=(600,500), krnl_size = (3,3), stack_scale=(0
     print('Final Canny Thresh:', cny_thresh)
     print('=============================================')
     
-    pass
+    return img_canny
 
 ######################################################################################################################################
 def find_contours(img, c_thresh = (100,100), dil = 1, ero = 0):
