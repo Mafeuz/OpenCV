@@ -125,7 +125,7 @@ def stackImgs(images_array, sep_lines=False, scale=0.5):
     return v_stack
 
 ######################################################################################################################################
-def color_filtering(img, boundaries, binarization=False):
+def color_filtering(img, boundaries):
 
     # loop over the boundaries
     for (lower, upper) in boundaries:
@@ -136,13 +136,29 @@ def color_filtering(img, boundaries, binarization=False):
 
         mask = cv2.inRange(img, lower, upper) # mask wit in range of lower to upper
         output_filter = cv2.bitwise_and(img, img, mask = mask)
-        
-        # binarization:
-        if binarization: 
-            pass
          
     return output_filter
 
+######################################################################################################################################
+def thresh_img(img, thresh_type='Binary Thresh', thresh=230, block_size=41, C=8, return_gray=False):
+    
+    if (thresh_type == 'Binary Thresh'):
+        _, imgThresh = cv2.threshold(img.copy(), thresh, 255, cv2.THRESH_BINARY)
+        
+    if (thresh_type == 'Otsu'):
+        _, imgThresh = cv2.threshold(img.copy()[:,:,0], 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    
+    if (thresh_type == 'Adaptive Mean C'):
+        imgThresh = cv2.adaptiveThreshold(img.copy()[:,:,0], 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, C)
+        
+    if (thresh_type == 'Adaptive Gaussian C'):
+        imgThresh = cv2.adaptiveThreshold(img.copy()[:,:,0], 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, block_size, C)
+
+    if not return_gray:
+        return imgThresh = cv2.cvtColor(imgThresh, cv2.COLOR_GRAY2RGB)
+    
+    return imgThresh
+    
 ######################################################################################################################################
 def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thresh = (100,100), order = 1, dil_level = 0, ero_level = 0):
     # Canny Processing:
@@ -259,7 +275,7 @@ def find_contours(img, c_thresh = (100,100), dil = 1, ero = 0):
     return conts, img_canny
 
 ######################################################################################################################################
-def reorder_4points(points):
+def reorder4points(points):
     # redorder 4 points ref to their coordinates
     # points format = np.array([[[p1x, p1y]], [[p2x, p2y]], [[p3x, p3y]], [[p4x, p4y]]])
     reordered_points = np.zeros_like(points)
@@ -348,7 +364,7 @@ def img_homography(img, points1, points2, pad=0):
     return img_warp
 
 ######################################################################################################################################
-def select_4_points_mouse_callback(event, x, y, flags, param):
+def selectPolygonMouseCallback(event, x, y, flags, param):
     
     # Global Aux Variables Should Start As:
     # clicked = False
@@ -362,7 +378,7 @@ def select_4_points_mouse_callback(event, x, y, flags, param):
     
     # How to set callback to a window:
     # cv2.namedWindow('Image')
-    # cv2.setMouseCallback('Image', select_4_points_mouse_callback)
+    # cv2.setMouseCallback('Image', selectPolygonMouseCallback)
 
     global p1, p2, p3, p4, clicked, move_points
     
@@ -408,7 +424,7 @@ def select_4_points_mouse_callback(event, x, y, flags, param):
     pass
 
 ######################################################################################################################################
-def draw__4points_polygon(image, p1, p2, p3, p4):
+def drawPolygon(image, p1, p2, p3, p4):
     
     p_outer_radius = 10
     p_inner_radius = 2
