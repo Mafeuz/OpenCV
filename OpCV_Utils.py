@@ -155,7 +155,8 @@ def thresh_img(img, thresh_type='Binary Thresh', thresh=230, block_size=41, C=8,
         imgThresh = cv2.adaptiveThreshold(img.copy()[:,:,0], 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, block_size, C)
 
     if not return_gray:
-        return imgThresh = cv2.cvtColor(imgThresh, cv2.COLOR_GRAY2RGB)
+        imgThresh = cv2.cvtColor(imgThresh, cv2.COLOR_GRAY2BGR)
+        return imgThresh
     
     return imgThresh
     
