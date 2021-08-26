@@ -1,10 +1,26 @@
 ######################################################################################################################################
-####################### OpenCV Utilities Module by Matheus Dantas (https://github.com/Mafeuz) ########################################
+##################### OpenCV Utilities Module by Matheus D. Pereira (https://github.com/Mafeuz) ######################################
 ######################################################################################################################################
 
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+
+######################################################################################################################################
+def imgFourrierTransform(img):
+    # Convert img to gray:
+    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    # Compute the FFT and adjust high frequencies to the middle:
+    f = np.fft.fft2(gray_img)
+    f = np.fft.fftshift(f)
+    magnitude_spectrum = 20*np.log(np.abs(f))
+    
+    # Adjust img to output:
+    magnitude_spectrum = magnitude_spectrum.astype('uint8')
+    magnitude_spectrum = cv2.cvtColor(magnitude_spectrum, cv2.COLOR_GRAY2RGB)
+    
+    return magnitude_spectrum
 
 ######################################################################################################################################
 def img_translation(img, dx, dy):
@@ -16,7 +32,7 @@ def img_translation(img, dx, dy):
     return shifted
 
 ######################################################################################################################################
-def img_rotation(img, angle, pivot=(img.shape[1]//2, img.shape[0]//2), keep_full_img=False):
+def img_rotation(img, angle, pivot, keep_full_img=False):
     
     (h, w) = img.shape[:2]
     (cX, cY) = pivot
@@ -573,10 +589,5 @@ def drawPolygon(image, p1, p2, p3, p4):
     pass
 
 ######################################################################################################################################
-
-if __name__ == '__main__':
-    print('Main')
-
-
 
 
