@@ -8,19 +8,25 @@ import cv2
 
 ######################################################################################################################################
 def imgFourrierTransform(img):
+    
     # Convert img to gray:
-    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
-    # Compute the FFT and adjust high frequencies to the middle:
-    f = np.fft.fft2(gray_img)
+    # Compute the FFT and adjust low frequencies to the middle:
+    f = np.fft.fft2(img_gray)
     f = np.fft.fftshift(f)
-    magnitude_spectrum = 20*np.log(np.abs(f))
     
-    # Adjust img to output:
+    magnitude_spectrum = 20*np.log(np.abs(f))
+    phase_spectrum = np.angle(f)
+    
+    # Adjust imgs to output:
     magnitude_spectrum = magnitude_spectrum.astype('uint8')
     magnitude_spectrum = cv2.cvtColor(magnitude_spectrum, cv2.COLOR_GRAY2RGB)
     
-    return magnitude_spectrum
+    phase_spectrum = phase_spectrum.astype('uint8')
+    phase_spectrum = cv2.cvtColor(phase_spectrum, cv2.COLOR_GRAY2RGB)
+    
+    return magnitude_spectrum, phase_spectrum
 
 ######################################################################################################################################
 def img_translation(img, dx, dy):
