@@ -512,6 +512,30 @@ def img_homography(img, points1, points2, pad=0):
     return img_warp
 
 ######################################################################################################################################
+def pointMouseCallback(event, x, y, flags, param):
+    # Set window and mouse callback:
+    # cv2.namedWindow('Video Stream')
+    # cv2.setMouseCallback('Video Stream', pointMouseCallback)
+    # define globals: mouse = (0,0), p = (0,0), clicked = False
+    
+    global mouse, p, clicked
+    
+    mouse = (x, y)
+        
+    if event == cv2.EVENT_LBUTTONDOWN:   
+        clicked = True
+        p = (x, y)
+    
+    if clicked == True:
+        if event == cv2.EVENT_MOUSEMOVE:
+            p = (x, y)
+              
+        if event == cv2.EVENT_LBUTTONUP:
+            clicked = False
+
+    pass
+
+######################################################################################################################################
 def selectPolygonMouseCallback(event, x, y, flags, param):
     
     # Global Aux Variables Should Start As:
