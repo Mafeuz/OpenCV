@@ -7,6 +7,30 @@ import matplotlib.pyplot as plt
 import cv2
 
 ######################################################################################################################################
+# FUNCTIONS LIST:
+# imgFourrierTransform(img)
+# img_translation(img, dx, dy)
+# img_rotation(img, angle, pivot, keep_full_img=False)
+# affine_transform(img, pts1, pts2)
+# gray_histogram(img, normalize=True)
+# color_histogram(img, normalize=True)
+# show_single_img_plt(img, title, fig_size=(15,15), show_axis=False)
+# show_multiple_imgs_plt(images_array, titles_array, fig_size = (15,15), show_axis=False)
+# stackImgs(images_array, sep_lines=False, scale=0.5)
+# color_filtering(img, boundaries)
+# thresh_img(img, thresh_type='Binary Thresh', thresh=230, block_size=41, C=8, return_gray=False)
+# custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thresh = (100,100), order = 1, dil_level = 0, ero_level = 0)
+# canny_trackbars(img, img_resize=(600,500), krnl_size = (3,3), stackImgs=False, stack_scale=(0.5))
+# find_contours(img, c_thresh = (100,100), dil = 1, ero = 0)
+# reorder4points(points)
+# img_warping_ref_obj(img, ref_points, ref_obj_W, ref_obj_H, pad=0)
+# img_homography(img, points1, points2, pad=0)
+# pointMouseCallback(event, x, y, flags, param)
+# selectPolygonMouseCallback(event, x, y, flags, param)
+# drawPolygon(image, p1, p2, p3, p4)
+
+######################################################################################################################################
+######################################################################################################################################
 def imgFourrierTransform(img):
     
     # Convert img to gray:
