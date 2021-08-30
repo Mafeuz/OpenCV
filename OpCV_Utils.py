@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 ######################################################################################################################################
-# FUNCTIONS LIST:
+# FUNCTION LIST:
 # imgFourrierTransform(img)
 # img_translation(img, dx, dy)
 # img_rotation(img, angle, pivot, keep_full_img=False)
@@ -27,7 +27,7 @@ import cv2
 # img_homography(img, points1, points2, pad=0)
 # pointMouseCallback(event, x, y, flags, param)
 # selectPolygonMouseCallback(event, x, y, flags, param)
-# drawPolygon(image, p1, p2, p3, p4)
+# drawPolygon(img, p1, p2, p3, p4)
 
 ######################################################################################################################################
 ######################################################################################################################################
@@ -121,9 +121,9 @@ def affine_transform(img, pts1, pts2):
     h, w, _ = img.shape
 
     M = cv2.getAffineTransform(pts1, pts2)
-    output = cv2.warpAffine(img, M, (w, h))
+    transformed = cv2.warpAffine(img, M, (w, h))
     
-    return output
+    return transformed
 
 ######################################################################################################################################
 def gray_histogram(img, normalize=True):
@@ -183,8 +183,6 @@ def show_single_img_plt(img, title, fig_size=(15,15), show_axis=False):
     if not show_axis:
         axis.axis('off')
         
-    pass
-
 ######################################################################################################################################
 def show_multiple_imgs_plt(images_array, titles_array, fig_size = (15,15), show_axis=False):
     # Function for outputing plt subplots from images (RGB).
@@ -220,8 +218,6 @@ def show_multiple_imgs_plt(images_array, titles_array, fig_size = (15,15), show_
             if not show_axis:
                 axis[j].axis('off')
             
-    pass
-
 ######################################################################################################################################
 def stackImgs(images_array, sep_lines=False, scale=0.5):
     # Function for rescaling and stacking cv2 BGR images together.
@@ -306,30 +302,30 @@ def color_filtering(img, boundaries):
         upper = np.array(upper, dtype = "uint8") # Upper color limit
 
         mask = cv2.inRange(img, lower, upper) # mask wit in range of lower to upper
-        output_filter = cv2.bitwise_and(img, img, mask = mask)
+        output = cv2.bitwise_and(img, img, mask = mask)
          
-    return output_filter
+    return output
 
 ######################################################################################################################################
 def thresh_img(img, thresh_type='Binary Thresh', thresh=230, block_size=41, C=8, return_gray=False):
     
     if (thresh_type == 'Binary Thresh'):
-        _, imgThresh = cv2.threshold(img.copy(), thresh, 255, cv2.THRESH_BINARY)
+        _, img_thresh = cv2.threshold(img.copy(), thresh, 255, cv2.THRESH_BINARY)
         
     if (thresh_type == 'Otsu'):
-        _, imgThresh = cv2.threshold(img.copy()[:,:,0], 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        _, img_thresh = cv2.threshold(img.copy()[:,:,0], 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     
     if (thresh_type == 'Adaptive Mean C'):
-        imgThresh = cv2.adaptiveThreshold(img.copy()[:,:,0], 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, C)
+        img_thresh = cv2.adaptiveThreshold(img.copy()[:,:,0], 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, C)
         
     if (thresh_type == 'Adaptive Gaussian C'):
-        imgThresh = cv2.adaptiveThreshold(img.copy()[:,:,0], 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, block_size, C)
+        img_thresh = cv2.adaptiveThreshold(img.copy()[:,:,0], 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, block_size, C)
 
     if not return_gray:
-        imgThresh = cv2.cvtColor(imgThresh, cv2.COLOR_GRAY2BGR)
-        return imgThresh
+        img_thresh = cv2.cvtColor(img_thresh, cv2.COLOR_GRAY2BGR)
+        return img_thresh
     
-    return imgThresh
+    return img_thresh
     
 ######################################################################################################################################
 def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thresh = (100,100), order = 1, dil_level = 0, ero_level = 0):
@@ -530,10 +526,10 @@ def img_homography(img, points1, points2, pad=0):
  
     W = img.shape[1]
     H = img.shape[0]
-    img_warp = cv2.warpPerspective(img, matrix, (W,H))
-    img_warp = img_warp[pad:img_warp.shape[0]-pad, pad:img_warp.shape[1]-pad]
+    img_warped = cv2.warpPerspective(img, matrix, (W,H))
+    img_warped = img_warped[pad:img_warped.shape[0]-pad, pad:img_warped.shape[1]-pad]
     
-    return img_warp
+    return img_warped
 
 ######################################################################################################################################
 def pointMouseCallback(event, x, y, flags, param):
@@ -556,8 +552,6 @@ def pointMouseCallback(event, x, y, flags, param):
               
         if event == cv2.EVENT_LBUTTONUP:
             clicked = False
-
-    pass
 
 ######################################################################################################################################
 def selectPolygonMouseCallback(event, x, y, flags, param):
@@ -617,30 +611,26 @@ def selectPolygonMouseCallback(event, x, y, flags, param):
             clicked = False
             move_points = [False, False, False, False]
 
-    pass
-
 ######################################################################################################################################
-def drawPolygon(image, p1, p2, p3, p4):
+def drawPolygon(img, p1, p2, p3, p4):
     
     p_outer_radius = 10
     p_inner_radius = 2
     
-    cv2.circle(image, p1, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
-    cv2.circle(image, p2, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
-    cv2.circle(image, p3, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
-    cv2.circle(image, p4, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
+    cv2.circle(img, p1, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
+    cv2.circle(img, p2, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
+    cv2.circle(img, p3, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
+    cv2.circle(img, p4, p_outer_radius, (255,0,0), thickness = 1, lineType = cv2.LINE_AA)
 
-    cv2.line(image, p1, p2, (255, 0, 0), 3)
-    cv2.line(image, p2, p4, (255, 0, 0), 3)
-    cv2.line(image, p1, p3, (255, 0, 0), 3)
-    cv2.line(image, p3, p4, (255, 0, 0), 3)
+    cv2.line(img, p1, p2, (255, 0, 0), 3)
+    cv2.line(img, p2, p4, (255, 0, 0), 3)
+    cv2.line(img, p1, p3, (255, 0, 0), 3)
+    cv2.line(img, p3, p4, (255, 0, 0), 3)
     
-    cv2.circle(image, p1, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
-    cv2.circle(image, p2, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
-    cv2.circle(image, p3, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
-    cv2.circle(image, p4, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
-
-    pass
+    cv2.circle(img, p1, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
+    cv2.circle(img, p2, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
+    cv2.circle(img, p3, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
+    cv2.circle(img, p4, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
 
 ######################################################################################################################################
 
