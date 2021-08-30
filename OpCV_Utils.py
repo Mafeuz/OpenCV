@@ -9,6 +9,7 @@ import cv2
 ######################################################################################################################################
 # FUNCTION LIST:
 # imgFourrierTransform(img)
+# invImgFourrierTransform(fft)
 # img_translation(img, dx, dy)
 # img_rotation(img, angle, pivot, keep_full_img=False)
 # affine_transform(img, pts1, pts2)
@@ -36,12 +37,15 @@ def imgFourrierTransform(img):
     # Convert img to gray:
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
-    # Compute the FFT and adjust low frequencies to the middle:
-    f = np.fft.fft2(img_gray)
-    f = np.fft.fftshift(f)
+    # Compute the 2D-FFT:
+    fft = np.fft.fft2(img_gray)
     
-    magnitude_spectrum = 20*np.log(np.abs(f))
-    phase_spectrum = np.angle(f)
+    # Get the phase spectrum:
+    phase_spectrum = np.angle(fft)
+    
+    # Shift adjust low frequencies to the center (phase info is lost) and get magnitude:
+    fft_shifted = np.fft.fftshift(fft)
+    magnitude_spectrum = 20*np.log(np.abs(fft_shifted))
     
     # Adjust imgs to output:
     magnitude_spectrum = magnitude_spectrum.astype('uint8')
@@ -50,7 +54,18 @@ def imgFourrierTransform(img):
     phase_spectrum = phase_spectrum.astype('uint8')
     phase_spectrum = cv2.cvtColor(phase_spectrum, cv2.COLOR_GRAY2RGB)
     
-    return magnitude_spectrum, phase_spectrum
+    return fft, magnitude_spectrum, phase_spectrum
+
+######################################################################################################################################
+def invImgFourrierTransform(fft):
+    # Recover img from the fft using the inverse fft:
+    img_recovered = np.abs(np.fft.ifft2(fft))
+
+    # Convert to show:
+    img_recovered = img_recovered.astype('uint8')
+    img_recovered = cv2.cvtColor(img_recovered, cv2.COLOR_GRAY2RGB)
+    
+    return img_recovered
 
 ######################################################################################################################################
 def img_translation(img, dx, dy):
