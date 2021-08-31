@@ -12,7 +12,7 @@ import time
 video_path = 'video.mp4'
 cap = cv2.VideoCapture(video_path)
 video_fps = cap.get(cv2.CAP_PROP_FPS)
-frame_res = (600,500)
+des_resolution = (480,640)
 
 while True:
     
@@ -24,7 +24,7 @@ while True:
         print('Server OFF')
         break
         
-    frame = cv2.resize(frame, frame_res)
+    frame = cv2.resize(frame, des_resolution)
     
     ###############################################################################################################
     ############################################# Processing ######################################################
