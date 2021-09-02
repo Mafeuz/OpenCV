@@ -84,47 +84,46 @@ def img_rotation(img, angle, pivot, keep_full_img=False):
     
     if keep_full_img:
         
-        # Sum 1 to avoid [0,0,0] pixels in the source img
-        # because later full black pixels will be taken out
-        img = img + 1
+        # Our img might have a extreme point as [0,0,0], that will cause a bad border identification.
+        # So its needed to change it:
+        if (angle !=0):
+            img[np.where((img == [0,0,0]).all(axis = 2))] = [1, 0, 0]
         
-        # Create space for keeping full img with stack (4 times img size and move it to the center):
+        # Create space for keeping full img:
         bboard = np.zeros_like(img)
-        dbboard = np.hstack([bboard, bboard])
-        stack = np.hstack([img, bboard])
-        stack = np.vstack([stack, dbboard])
-        
-        # Move it to the center:
-        M = np.float32([[1, 0, img.shape[1]//2],
-                        [0, 1, img.shape[0]//2]])
-        
-        (h, w) = stack.shape[:2]
-        (cX, cY) = (stack.shape[1]//2, stack.shape[0]//2)
-        
-        img = cv2.warpAffine(stack, M, (0,0))
-                
+        maxdim = np.argmax([h, w])
+        dims = (np.max([2*h, 2*w]), np.max([2*h, 2*w]))
+        bboard = cv2.resize(bboard, (dims))
+               
+        # Put original img in the center of the black board:
+        bboard[bboard.shape[0]//4:(bboard.shape[0]//4 + img.shape[0]),
+               bboard.shape[0]//4:(bboard.shape[0]//4 + img.shape[1]),:] = img
+                  
+        # New img = black board:
+        img = bboard
+                                
         # Rotate new img:
-        M = cv2.getRotationMatrix2D((cX, cY), angle, 1.0)
-        rotated = cv2.warpAffine(img, M, (w, h))
-        
-        # Get img region extremes and move desired region to (0,0)
+        M = cv2.getRotationMatrix2D((img.shape[1]//2, img.shape[0]//2), angle, 1.0)
+        rotated = cv2.warpAffine(img, M, (img.shape[1], img.shape[0]))
+                
+        # Get img region extremes:
         loc = np.where((rotated != [0,0,0]).all(axis = 2))
-                        
         extTop = np.min(loc[0])
         extLeft = np.min(loc[1])
         
+        # Move it to desired region to (0,0)
         M = np.float32([[1, 0, -extLeft],
                         [0, 1, -extTop]])
         
         rotated = cv2.warpAffine(rotated, M, (rotated.shape[1], rotated.shape[0]))
         
+        # Cut not desired region:
         loc = np.where((rotated != [0,0,0]).all(axis = 2))
-        
         extRight = np.max(loc[0])
         extBot = np.max(loc[1])
         
-        rotated = rotated[:extRight,:extBot,:] -1
-    
+        rotated = rotated[:extRight,:extBot,:]
+            
     else:
         M = cv2.getRotationMatrix2D((cX, cY), angle, 1.0)
         rotated = cv2.warpAffine(img, M, (w, h))
