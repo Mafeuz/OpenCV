@@ -8,8 +8,8 @@ import cv2
 
 ######################################################################################################################################
 # FUNCTION LIST:
-# imgFourrierTransform(img)
-# invImgFourrierTransform(fft)
+# imgFourierTransform(img)
+# invImgFourierTransform(fft)
 # img_translation(img, dx, dy)
 # img_rotation(img, angle, pivot, keep_full_img=False)
 # affine_transform(img, pts1, pts2)
@@ -32,7 +32,7 @@ import cv2
 
 ######################################################################################################################################
 ######################################################################################################################################
-def imgFourrierTransform(img):
+def imgFourierTransform(img):
     
     # Convert img to gray:
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -57,7 +57,7 @@ def imgFourrierTransform(img):
     return fft, magnitude_spectrum, phase_spectrum
 
 ######################################################################################################################################
-def invImgFourrierTransform(fft):
+def invImgFourierTransform(fft):
     # Recover img from the fft using the inverse fft:
     img_recovered = np.abs(np.fft.ifft2(fft))
 
