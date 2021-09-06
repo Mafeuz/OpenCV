@@ -21,13 +21,15 @@ void showGrayImg(string path, double scale) {
 	waitKey(0);
 }
 
-Mat canny_img(Mat img, int knrlX, int knrlY, int dilation, int erosion) {
+Mat canny_img(Mat img, float cthresh, int knrlX, int knrlY, int dilation, int erosion) {
 
+	Mat img_gray;
 	Mat canny_img;
 	Mat kernel = getStructuringElement(MORPH_RECT, Size(knrlX, knrlY));
 
-	GaussianBlur(img, img, Size(3, 3), 5, 0);
-	Canny(img, canny_img, 50, 50);
+	cvtColor(img, img_gray, COLOR_BGR2GRAY);
+	GaussianBlur(img_gray, img_gray, Size(3, 3), 5, 0);
+	Canny(img_gray, canny_img, cthresh, cthresh);
 
 	if (dilation > 0) {
 		dilate(canny_img, canny_img, kernel, Point(-1, -1), dilation);
@@ -79,4 +81,61 @@ Mat imgCropping(Mat img, int startX, int startY, int width, int height) {
 	imgCrop = img(roi);
 
 	return imgCrop;
+}
+
+Mat warpImg(Mat img, Point2f src[4], Point2f dst[4], float w, float h) {
+
+	Mat H = getPerspectiveTransform(src, dst);
+	Mat img_warped;
+	warpPerspective(img, img_warped, H, Point(w, h));
+
+	return img_warped;
+
+}
+
+void getContours(Mat img, Mat imgToDraw, int dilation, float min_area, int filter_corners, bool draw_bboxes) {
+
+	Mat cannyImg;
+
+	cannyImg = canny_img(img, 50, 5, 5, dilation, 0);
+
+	vector<vector<Point>> contours;
+	vector<Vec4i> hiearchy;
+
+	findContours(cannyImg, contours, hiearchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+	
+	vector<vector<Point>> conPoly(contours.size());
+	vector<Rect> boundRect(contours.size());
+
+	for (int i = 0; i < contours.size(); i++){
+	
+		int area = contourArea(contours[i]);
+		float perimeter = arcLength(contours[i], true);
+		approxPolyDP(contours[i], conPoly[i], 0.02 * perimeter, true);
+		boundRect[i] = boundingRect(conPoly[i]);
+
+		if (area > min_area) {
+
+			if ((filter_corners != -1) && (conPoly[i].size() == filter_corners)) {
+				drawContours(imgToDraw, conPoly, i, Scalar(255, 0, 255), 2);
+
+				if (draw_bboxes == true) {
+					rectangle(imgToDraw, boundRect[i].tl(), boundRect[i].br(), Scalar(0, 0, 255), 2);
+				}
+
+			}
+
+			if (filter_corners == -1) {
+				drawContours(imgToDraw, contours, i, Scalar(255, 0, 255), 2);
+
+				if (draw_bboxes == true) {
+					rectangle(imgToDraw, boundRect[i].tl(), boundRect[i].br(), Scalar(0, 0, 255), 2);
+				}
+
+			}
+
+		}
+
+	}
+
 }
