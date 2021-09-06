@@ -427,7 +427,17 @@ def find_contours(img, c_thresh = (100,100), dil = 1, ero = 0):
     conts = []
 
     for i, c in enumerate(contours):
+        
+            # Get contour Area:
             area = cv2.contourArea(c)
+            
+            # Get contour perimiter (closed):
+            perimeter = cv2.arcLength(c, True)
+                
+            # Get contour approx corner points:
+            approxCorners = cv2.approxPolyDP(c, 0.02*perimeter, True)
+            
+            # Centroid:
             M = cv2.moments(c)
 
             # calculate x,y coordinate of centroid
@@ -443,13 +453,13 @@ def find_contours(img, c_thresh = (100,100), dil = 1, ero = 0):
 
                 bbox_start_point = (extLeft[0], extTop[1])
                 bbox_end_point = (extRight[0], extBot[1])
-                
+
             else:
                 cX, cY = None, None
                 bbox_start_point = None
                 bbox_end_point = None
 
-            conts.append([c, area, (cX, cY), bbox_start_point, bbox_end_point])
+            conts.append([c, area, (cX, cY), bbox_start_point, bbox_end_point, perimeter, approxCorners])
 
     # Sort contours by area size (biggest to smaller)
     conts = sorted(conts, key = lambda x:x[1], reverse = True)
