@@ -29,6 +29,7 @@ import cv2
 # pointMouseCallback(event, x, y, flags, param)
 # selectPolygonMouseCallback(event, x, y, flags, param)
 # drawPolygon(img, p1, p2, p3, p4)
+# drawBoundingBox(img, x, y, w, h, text, color)
 
 ######################################################################################################################################
 ######################################################################################################################################
@@ -657,5 +658,20 @@ def drawPolygon(img, p1, p2, p3, p4):
     cv2.circle(img, p4, p_inner_radius, (0,0,255), thickness = -1, lineType = cv2.LINE_AA)
 
 ######################################################################################################################################
+def drawBoundingBox(img, x, y, w, h, text, color):
+    
+    # add litle background to class name info:
+    backg = np.full((img.shape), (0,0,0), dtype=np.uint8)
+    cv2.putText(backg, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
+    fx,fy,fw,fh = cv2.boundingRect(backg[:,:,2])
+                
+    # Draw obj bbox:
+    cv2.rectangle(img, (x, y), (x + w, y + h), color, 2) 
+    cv2.rectangle(img, (fx, fy), (fx + fw, fy + fh), color, -1) 
+    cv2.rectangle(img, (fx, fy), (fx + fw, fy + fh), color, 3) 
+    cv2.putText(img, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,0), 1)
+    
+    return img
 
-
+######################################################################################################################################
+    
