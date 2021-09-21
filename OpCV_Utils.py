@@ -30,6 +30,7 @@ import cv2
 # selectPolygonMouseCallback(event, x, y, flags, param)
 # drawPolygon(img, p1, p2, p3, p4)
 # drawBoundingBox(img, x, y, w, h, text, color)
+# contrast_CLAHE(img, clipLimit=3.0, tileGridSize=(8,8))
 
 ######################################################################################################################################
 ######################################################################################################################################
@@ -660,7 +661,7 @@ def drawPolygon(img, p1, p2, p3, p4):
 ######################################################################################################################################
 def drawBoundingBox(img, x, y, w, h, text, color):
     
-    # add litle background to class name info:
+    # add litle background to text info:
     backg = np.full((img.shape), (0,0,0), dtype=np.uint8)
     cv2.putText(backg, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
     fx,fy,fw,fh = cv2.boundingRect(backg[:,:,2])
@@ -674,4 +675,17 @@ def drawBoundingBox(img, x, y, w, h, text, color):
     return img
 
 ######################################################################################################################################
+def contrast_CLAHE(img, clipLimit=3.0, tileGridSize=(8,8)):
     
+    # Contrast Limited Adaptaive Histogram Equalization
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    
+    L, A, B = cv2.split(img)
+    CLAHE = cv2.createCLAHE(clipLimit, tileGridSize)
+    CL = CLAHE.apply(L)
+    merge = cv2.merge((CL, A, B))
+    output = cv2.cvtColor(merge, cv2.COLOR_LAB2BGR)
+    
+    return output 
+
+######################################################################################################################################
