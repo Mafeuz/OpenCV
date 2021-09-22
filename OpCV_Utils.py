@@ -31,6 +31,8 @@ import cv2
 # drawPolygon(img, p1, p2, p3, p4)
 # drawBoundingBox(img, x, y, w, h, text, color)
 # contrast_CLAHE(img, clipLimit=3.0, tileGridSize=(8,8))
+# img_upscale_3x(img, path)
+# img_upscale_8x(img, path)
 
 ######################################################################################################################################
 ######################################################################################################################################
@@ -687,5 +689,29 @@ def contrast_CLAHE(img, clipLimit=3.0, tileGridSize=(8,8)):
     output = cv2.cvtColor(merge, cv2.COLOR_LAB2BGR)
     
     return output 
+
+######################################################################################################################################
+def img_upscale_3x(img, path):
+
+    # path = 'FSRCNN_x3.pb'
+
+    sr3x = cv2.dnn_superres.DnnSuperResImpl_create()
+    sr3x.readModel(path3x)
+    sr3x.setModel("fsrcnn", 3)
+    img_upscale = sr3x.upsample(img)
+    
+    return img_upscale
+
+######################################################################################################################################
+def img_upscale_8x(img, path):
+    
+    # path = 'LapSRN_x8.pb'
+    
+    sr8x = cv2.dnn_superres.DnnSuperResImpl_create()
+    sr8x.readModel(path)
+    sr8x.setModel('lapsrn', 8)
+    img_upscale = sr8x.upsample(img)
+    
+    return img_upscale
 
 ######################################################################################################################################
