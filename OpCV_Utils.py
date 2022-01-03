@@ -365,7 +365,7 @@ def custom_canny(img, blur_kernel_size = (5,5), kernel_size = (3,3), canny_thres
     return img_thresh
 
 ######################################################################################################################################
-def canny_trackbars(img, img_resize=(600,500), krnl_size = (3,3), stackImgs=False, stack_scale=(0.5)):
+def canny_trackbars(img, img_resize=(600,500), krnl_size = (3,3), stack_imgs=False, stack_scale=(0.5)):
     
     print('Press K to break.\n')
     
@@ -403,7 +403,7 @@ def canny_trackbars(img, img_resize=(600,500), krnl_size = (3,3), stackImgs=Fals
         img_canny = custom_canny(img.copy(), kernel_size = krnl_size, canny_thresh = cny_thresh, 
                                    dil_level = dilation, ero_level = erosion)
 
-        if stackImgs:
+        if stack_imgs:
             img_canny = stackImgs([[img, img_canny]], scale = stack_scale)
 
         ############################################################################
