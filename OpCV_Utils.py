@@ -205,7 +205,7 @@ def show_single_img_plt(img, title, fig_size=(15,15), show_axis=False):
 def show_multiple_imgs_plt(images_array, titles_array, fig_size = (15,15), show_axis=False):
     # Function for outputing plt subplots from images (RGB).
     # Each row of images must have the same number of elements as the others.
-    # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
+    # list/array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
     
     if (len(images_array) > 1) & (len(images_array[0]) > 1):
         fig, axis = plt.subplots(len(images_array), len(images_array[0]), figsize = fig_size)
@@ -239,7 +239,7 @@ def show_multiple_imgs_plt(images_array, titles_array, fig_size = (15,15), show_
 ######################################################################################################################################
 def stackImgs(images_array, sep_lines=False, scale=0.5):
     # Function for rescaling and stacking cv2 BGR images together.
-    # array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
+    # list/array form: [row1,row2,...rowN], row = [element1, element2,...elementN]
         
     ##################################################################################################################
     # Resize images based on the shape of the first image:
